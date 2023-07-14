@@ -29,6 +29,11 @@ class DisplayUtils:
     def __convert_ann_to_mask(self, ann, height, width):
         mask = np.zeros((height, width), dtype=np.uint8)
         poly = ann["segmentation"]
+        # NOTE: why is this here?
+        # for some odd reason, within pycoco https://github.com/cocodataset/cocoapi/blob/8c9bcc3cf640524c4c20a9c40e89cb6a2f2fa0e9/PythonAPI/pycocotools/_mask.pyx#L290-L293
+        # if the list starts with a 4 element list, it is redirected to a function that demands it's arg be a numpy array
+        # and the whole thing fails
+        poly = sorted(poly, key=lambda x: len(x), reverse=True)
         rles = coco_mask.frPyObjects(poly, height, width)
         rle = coco_mask.merge(rles)
         mask_instance = coco_mask.decode(rle)
